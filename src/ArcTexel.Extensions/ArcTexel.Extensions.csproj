@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+      <TargetFramework>net10.0</TargetFramework>
+      <ImplicitUsings>enable</ImplicitUsings>
+      <Nullable>enable</Nullable>
+      <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <Version>0.0.3-dev</Version>
+      <Title>ArcTexel Extensions</Title>
+      <Authors>ArcTexel Organization</Authors>
+      <Copyright>ArcTexel Organization</Copyright>
+      <Description>Package for creating custom extensions for univrsal 2D editor ArcTexel</Description>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Avalonia.Remote.Protocol" Version="$(AvaloniaVersion)" />
+      <PackageReference Include="Svg.Controls.Skia.Avalonia" Version="11.3.0.3" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+      <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Drawie\src\Drawie.Backend.Core\Drawie.Backend.Core.csproj" />
+      <ProjectReference Include="..\Drawie\src\Drawie.Numerics\Drawie.Numerics.csproj" />
+      <ProjectReference Include="..\ArcTexel.Extensions.CommonApi\ArcTexel.Extensions.CommonApi.csproj" />
+      <ProjectReference Include="..\ArcTexel.OperatingSystem\ArcTexel.OperatingSystem.csproj" />
+      <ProjectReference Include="..\ArcTexel.UI.Common\ArcTexel.UI.Common.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="..\..\README.md">
+        <Pack>True</Pack>
+        <PackagePath>\</PackagePath>
+        <Link>README.md</Link>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Common\Localization\" />
+      <Folder Include="Controls\" />
+    </ItemGroup>
+</Project>
+

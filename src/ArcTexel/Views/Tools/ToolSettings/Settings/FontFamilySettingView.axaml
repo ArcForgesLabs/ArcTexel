@@ -1,0 +1,20 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:ArcTexel.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:enums="clr-namespace:ArcTexel.ChangeableDocument.Enums;assembly=ArcTexel.ChangeableDocument"
+             xmlns:ui="clr-namespace:ArcTexel.Extensions.UI;assembly=ArcTexel.Extensions"
+             xmlns:helpers="clr-namespace:ArcTexel.Helpers"
+             xmlns:converters="clr-namespace:ArcTexel.Helpers.Converters"
+             xmlns:properties="clr-namespace:ArcTexel.Views.Nodes.Properties"
+             xmlns:input="clr-namespace:ArcTexel.Views.Input"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ArcTexel.Views.Tools.ToolSettings.Settings.FontFamilySettingView">
+    <Design.DataContext>
+        <settings:FontFamilySettingViewModel />
+    </Design.DataContext>
+
+    <input:FontFamilyPicker FontIndex="{Binding FontIndex, Mode=TwoWay}"
+                                 Fonts="{Binding Fonts, Mode=OneWayToSource}"/>
+</UserControl>

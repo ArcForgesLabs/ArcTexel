@@ -1,0 +1,358 @@
+﻿using System.Diagnostics;
+using Avalonia.Threading;
+using Drawie.Backend.Core;
+using ArcTexel.ChangeableDocument;
+using ArcTexel.ChangeableDocument.Actions;
+using ArcTexel.ChangeableDocument.Actions.Generated;
+using ArcTexel.ChangeableDocument.Actions.Undo;
+using ArcTexel.ChangeableDocument.ChangeInfos;
+using Drawie.Backend.Core.Bridge;
+using ArcTexel.ChangeableDocument.ChangeInfos.NodeGraph;
+using ArcTexel.ChangeableDocument.Rendering;
+using ArcTexel.Extensions.CommonApi.UserPreferences.Settings.ArcTexel;
+using ArcTexel.Helpers;
+using ArcTexel.Models.DocumentModels.Public;
+using ArcTexel.Models.DocumentPassthroughActions;
+using ArcTexel.Models.Handlers;
+using ArcTexel.Models.Rendering;
+
+namespace ArcTexel.Models.DocumentModels;
+#nullable enable
+internal class ActionAccumulator
+{
+    private bool executing = false;
+
+    private List<(ActionSource source, IAction action)> queuedActions = new();
+    private IDocument document;
+    private DocumentInternalParts internals;
+
+    private MemberPreviewUpdater previewUpdater;
+
+    private bool isChangeBlockActive = false;
+
+    public ActionAccumulator(IDocument doc, DocumentInternalParts internals)
+    {
+        this.document = doc;
+        this.internals = internals;
+
+        previewUpdater = new(doc, internals);
+    }
+
+    public void StartChangeBlock()
+    {
+        if (isChangeBlockActive)
+            throw new InvalidOperationException("Change block is already active");
+
+        isChangeBlockActive = true;
+    }
+
+    public void EndChangeBlock()
+    {
+        isChangeBlockActive = false;
+        queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
+        TryExecuteAccumulatedActionsSync();
+    }
+
+    public void AddFinishedActions(params IAction[] actions)
+    {
+        foreach (var action in actions)
+        {
+            queuedActions.Add((ActionSource.User, action));
+        }
+
+        if (!isChangeBlockActive)
+        {
+            queuedActions.Add((ActionSource.Automated, new ChangeBoundary_Action()));
+            TryExecuteAccumulatedActions();
+        }
+    }
+
+    public void AddActions(params IAction[] actions)
+    {
+        foreach (var action in actions)
+        {
+            queuedActions.Add((ActionSource.User, action));
+        }
+
+        if (!isChangeBlockActive)
+        {
+            TryExecuteAccumulatedActions();
+        }
+    }
+
+    public void AddActions(ActionSource actionSource, params IAction[] actions)
+    {
+        foreach (var action in actions)
+        {
+            queuedActions.Add((actionSource, action));
+        }
+
+        if (!isChangeBlockActive)
+        {
+            TryExecuteAccumulatedActions();
+        }
+    }
+
+    public void AddActions(ActionSource source, IAction action)
+    {
+        queuedActions.Add((source, action));
+        TryExecuteAccumulatedActions();
+    }
+
+    internal async Task TryExecuteAccumulatedActions()
+    {
+        if (executing || queuedActions.Count == 0 || document.IsDisposed || internals.Tracker.IsRunning)
+            return;
+        executing = true;
+        try
+        {
+            while (queuedActions.Count > 0)
+            {
+                var toExecute = queuedActions;
+                queuedActions = new();
+
+                List<IChangeInfo?> changes;
+
+                if (internals.Tracker.IsDisposed)
+                    return;
+
+                bool allPassthrough = AreAllPassthrough(toExecute);
+                if (allPassthrough)
+                {
+                    changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
+                }
+                else
+                {
+                    changes = await internals.Tracker.ProcessActions(toExecute);
+                }
+
+                List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
+                bool undoBoundaryPassed =
+                    toExecute.Any(static action =>
+                        action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+                bool viewportRefreshRequest =
+                    toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+                bool refreshPreviewsRequest =
+                    toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
+                bool refreshPreviewRequest =
+                    toExecute.Any(static action => action.action is RefreshPreview_PassthroughAction);
+                bool changeFrameRequest =
+                    toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+                bool debugRecordRequest =
+                    toExecute.Any(static action => action.action is DebugRecordFrame_PassthroughAction);
+
+                foreach (IChangeInfo info in optimizedChanges)
+                {
+                    internals.Updater.ApplyChangeFromChangeInfo(info);
+                }
+
+                if (undoBoundaryPassed)
+                    internals.Updater.AfterUndoBoundaryPassed();
+
+                var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
+                    internals.Tracker,
+                    optimizedChanges, refreshPreviewsRequest);
+
+                bool previewsDisabled = ArcTexelSettings.Performance.DisablePreviews.Value;
+                bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                                     document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
+
+                Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
+
+                if (!previewsDisabled)
+                {
+                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
+                        refreshPreviewRequest || changeFrameRequest ||
+                        document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
+                    {
+                        previewTextures = previewUpdater.GatherPreviewsToUpdate(
+                            affectedAreas.ChangedMembers,
+                            affectedAreas.ChangedMasks,
+                            affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
+                            affectedAreas.IgnoreAnimationPreviews,
+                            undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
+                    }
+                }
+
+                List<Action>? updatePreviewActions = previewTextures?.Values
+                    .Select(x => x.Select(r => r.TextureUpdatedAction))
+                    .SelectMany(x => x).ToList();
+
+                bool immediateRender = affectedAreas.MainImageArea.Chunks.Count > 0 && !allPassthrough;
+
+                if (internals.Tracker.IsDisposed)
+                    return;
+
+                try
+                {
+                    if (debugRecordRequest)
+                    {
+                        await document.SceneRenderer.RecordRender(internals.State.Viewports,
+                            affectedAreas.MainImageArea,
+                            !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    }
+                    else
+                    {
+                        await document.SceneRenderer.RenderAsync(internals.State.Viewports, affectedAreas.MainImageArea,
+                            !previewsDisabled && updateDelayed, previewTextures, immediateRender);
+                    }
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    // Document or renderer was disposed during await
+#if DEBUG
+                    Debug.WriteLine($"Rendering aborted due to disposed exception: {ex}");
+#endif
+                    return;
+                }
+                finally
+                {
+                    NotifyUpdatedPreviews(updatePreviewActions);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            document.Busy = false;
+            executing = false;
+#if DEBUG
+            Console.WriteLine(e);
+#endif
+            CrashHelper.SendExceptionInfo(e);
+            throw;
+        }
+
+        if (document.Busy)
+            document.Busy = false;
+        executing = false;
+    }
+
+    internal void TryExecuteAccumulatedActionsSync()
+    {
+        if (executing || queuedActions.Count == 0 || internals.Tracker.IsRunning || document.IsDisposed)
+            return;
+        executing = true;
+        try
+        {
+            while (queuedActions.Count > 0)
+            {
+                var toExecute = queuedActions;
+                queuedActions = new();
+
+                List<IChangeInfo?> changes;
+                bool allPassthrough = AreAllPassthrough(toExecute);
+                if (allPassthrough)
+                {
+                    changes = toExecute.Select(a => (IChangeInfo?)a.action).ToList();
+                }
+                else
+                {
+                    changes = internals.Tracker.ProcessActionsSync(toExecute);
+                }
+
+                List<IChangeInfo> optimizedChanges = ChangeInfoListOptimizer.Optimize(changes);
+                bool undoBoundaryPassed =
+                    toExecute.Any(static action =>
+                        action.action is ChangeBoundary_Action or Redo_Action or Undo_Action);
+                bool viewportRefreshRequest =
+                    toExecute.Any(static action => action.action is RefreshViewport_PassthroughAction);
+                bool refreshPreviewsRequest =
+                    toExecute.Any(static action => action.action is RefreshPreviews_PassthroughAction);
+                bool refreshPreviewRequest =
+                    toExecute.Any(static action => action.action is RefreshPreview_PassthroughAction);
+                bool changeFrameRequest =
+                    toExecute.Any(static action => action.action is SetActiveFrame_PassthroughAction);
+
+                foreach (IChangeInfo info in optimizedChanges)
+                {
+                    internals.Updater.ApplyChangeFromChangeInfo(info);
+                }
+
+                if (undoBoundaryPassed)
+                    internals.Updater.AfterUndoBoundaryPassed();
+
+                var affectedAreas = new AffectedAreasGatherer(document.AnimationHandler.ActiveFrameTime,
+                    internals.Tracker,
+                    optimizedChanges, refreshPreviewsRequest);
+
+                bool previewsDisabled = ArcTexelSettings.Performance.DisablePreviews.Value;
+                bool updateDelayed = undoBoundaryPassed || viewportRefreshRequest || changeFrameRequest ||
+                                     document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold;
+
+                Dictionary<Guid, List<PreviewRenderRequest>>? previewTextures = null;
+
+                if (!previewsDisabled)
+                {
+                    if (undoBoundaryPassed || viewportRefreshRequest || refreshPreviewsRequest ||
+                        refreshPreviewRequest || changeFrameRequest ||
+                        document.SizeBindable.LongestAxis <= LiveUpdatePerformanceThreshold)
+                    {
+                        previewTextures = previewUpdater.GatherPreviewsToUpdate(
+                            affectedAreas.ChangedMembers,
+                            affectedAreas.ChangedMasks,
+                            affectedAreas.ChangedNodes, affectedAreas.ChangedKeyFrames,
+                            affectedAreas.IgnoreAnimationPreviews,
+                            undoBoundaryPassed || refreshPreviewsRequest || refreshPreviewRequest);
+                    }
+                }
+
+                List<Action>? updatePreviewActions = previewTextures?.Values
+                    .Select(x => x.Select(r => r.TextureUpdatedAction))
+                    .SelectMany(x => x).ToList();
+
+                try
+                {
+                    document.SceneRenderer.RenderSync(internals.State.Viewports, affectedAreas.MainImageArea,
+                        !previewsDisabled && updateDelayed, previewTextures);
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Document or renderer was disposed during await
+                    return;
+                }
+                finally
+                {
+                    NotifyUpdatedPreviews(updatePreviewActions);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            document.Busy = false;
+            executing = false;
+#if DEBUG
+            Console.WriteLine(e);
+#endif
+            CrashHelper.SendExceptionInfo(e);
+            throw;
+        }
+
+        if (document.Busy)
+            document.Busy = false;
+        executing = false;
+    }
+
+    private static void NotifyUpdatedPreviews(List<Action>? updatePreviewActions)
+    {
+        if (updatePreviewActions != null)
+        {
+            foreach (var action in updatePreviewActions)
+            {
+                action();
+            }
+        }
+    }
+
+    private const int LiveUpdatePerformanceThreshold = 2048;
+
+    private bool AreAllPassthrough(List<(ActionSource, IAction)> actions)
+    {
+        foreach (var action in actions)
+        {
+            if (action.Item2 is not IChangeInfo)
+                return false;
+        }
+
+        return true;
+    }
+}

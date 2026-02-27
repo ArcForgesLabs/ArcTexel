@@ -1,0 +1,27 @@
+{
+  "displayName": "Sample Extension - FlyUI",
+  "uniqueName": "yourCompany.Samples.FlyUI",
+  "description": "Sample FlyUI extension for ArcTexel",
+  "version": "1.0.0",
+  "author": {
+    "name": "ArcTexel",
+    "email": "info@arctexel.net",
+    "website": "https://arctexel.net"
+  },
+  "publisher": {
+    "name": "ArcTexel",
+    "email": "info@arctexel.net",
+    "website": "https://arctexel.net"
+  },
+  "contributors": [
+    {
+      "name": "flabbet",
+      "email": "some@mail.com",
+      "website": "https://github.com/flabbet"
+    }
+  ],
+  "license": "MIT",
+  "categories": [
+    "Extension"
+  ]
+}

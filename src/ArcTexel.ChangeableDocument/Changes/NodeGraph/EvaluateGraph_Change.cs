@@ -1,0 +1,50 @@
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Surfaces;
+using ArcTexel.ChangeableDocument.Changeables.Animations;
+using ArcTexel.ChangeableDocument.Changeables.Graph;
+using ArcTexel.ChangeableDocument.Rendering;
+
+namespace ArcTexel.ChangeableDocument.Changes.NodeGraph;
+
+internal class EvaluateGraph_Change : Change
+{
+    private readonly Guid endNodeGuid;
+    private readonly KeyFrameTime frameTime;
+
+    [GenerateMakeChangeAction]
+    public EvaluateGraph_Change(Guid endNodeGuid, KeyFrameTime frameTime)
+    {
+        this.endNodeGuid = endNodeGuid;
+        this.frameTime = frameTime;
+    }
+
+    public override bool InitializeAndValidate(Document target)
+    {
+        return target.HasNode(endNodeGuid);
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Apply(Document target, bool firstApply,
+        out bool ignoreInUndo)
+    {
+        ignoreInUndo = true;
+
+        var node = target.FindNode(endNodeGuid);
+        var queue = GraphUtils.CalculateExecutionQueue(node);
+
+        using Texture renderTexture = Texture.ForProcessing(target.Size, target.ProcessingColorSpace);
+        RenderContext context =
+            new(renderTexture.DrawingSurface.Canvas, frameTime, ChunkResolution.Full, target.Size, target.Size,
+                target.ProcessingColorSpace, SamplingOptions.Default, target.NodeGraph) { FullRerender = true };
+        foreach (var nodeToEvaluate in queue)
+        {
+            nodeToEvaluate.Execute(context);
+        }
+
+        return new None();
+    }
+
+    public override OneOf<None, IChangeInfo, List<IChangeInfo>> Revert(Document target)
+    {
+        return new None();
+    }
+}

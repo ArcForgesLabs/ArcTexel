@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net10.0</TargetFrameworks>
+    <LangVersion>Latest</LangVersion>
+    <RootNamespace>ArcTexel.Parser</RootNamespace>
+    <PackageId>ArcTexel.Parser</PackageId>
+    <Company>ArcTexel</Company>
+    <Authors>Philip Kreuz, Krzysztof Krysiński, Egor Mozgovoy and Contributors</Authors>
+    <Description>A Parser for serializing and deserializing .arc files used by ArcTexel</Description>
+    <Copyright>ArcTexel ©</Copyright>
+    <RepositoryUrl>https://github.com/ArcTexel/ArcParser</RepositoryUrl>
+    <PackageProjectUrl>https://arctexel.net/</PackageProjectUrl>
+    <PackageTags>parser</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageIcon>ArcParserLogo.png</PackageIcon>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <Version>5.0.0.0</Version>
+    <PackageVersion>5.0.0</PackageVersion>
+  </PropertyGroup>
+
+	<ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+      <Link>README.md</Link>
+    </None>
+    <None Include="..\..\ArcParserLogo.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="MessagePack" Version="2.5.192" />
+	  <PackageReference Include="MessagePackAnalyzer" Version="2.5.192">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	  <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
+  </ItemGroup>
+</Project>
+

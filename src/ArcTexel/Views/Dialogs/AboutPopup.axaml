@@ -1,0 +1,157 @@
+<dialogs:ArcTexelPopup xmlns="https://github.com/avaloniaui"
+                         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                         xmlns:dialogs="clr-namespace:ArcTexel.Views.Dialogs"
+                         xmlns:ui="clr-namespace:ArcTexel.UI.Common.Localization;assembly=ArcTexel.UI.Common"
+                         xmlns:ui1="clr-namespace:ArcTexel.Helpers.UI"
+                         xmlns:panels="clr-namespace:ArcTexel.Views.Panels"
+                         xmlns:cmds="clr-namespace:ArcTexel.Models.Commands.XAML"
+                         xmlns:ui2="clr-namespace:ArcTexel.Extensions.UI;assembly=ArcTexel.Extensions"
+                         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                         x:Class="ArcTexel.Views.Dialogs.AboutPopup"
+                         Name="aboutPopup"
+                         CanResize="True"
+                         Width="440" Height="500"
+                         MaxWidth="440" MaxHeight="500"
+                         ui:Translator.Key="ABOUT">
+    <StackPanel Spacing="5" DataContext="{Binding ElementName=aboutPopup}" Orientation="Vertical"
+                DockPanel.Dock="Bottom"
+                Margin="10">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top">
+            <Svg Path="../../Images/ArcTexelLogo.svg" Height="40" VerticalAlignment="Center" />
+            <TextBlock FontSize="40" FontWeight="SemiBold" Foreground="{DynamicResource ThemeForegroundBrush}"
+                       VerticalAlignment="Center" Margin="10,0,0,0">
+                ArcTexel
+            </TextBlock>
+        </StackPanel>
+        <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}" HorizontalAlignment="Center" FontSize="20"
+                   FontWeight="Medium" ui:Translator.LocalizedString="{Binding VersionText}" />
+        <TextBlock Foreground="{DynamicResource ThemeForegroundBrush}" HorizontalAlignment="Left" FontSize="11"
+                   Margin="25 5 0 0" ui:Translator.LocalizedString="{Binding BuildIdText}" />
+        <Label ui:Translator.Key="PROJECT_MAINTAINERS" Classes="h2" Margin="10 20 0 5" />
+        <StackPanel Orientation="Horizontal" Margin="20 0">
+            <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
+                <Ellipse.Fill>
+                    <ImageBrush Source="/Images/SocialMedia/Avatars/flabbet.png" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Label Margin="10 0 0 0" FontSize="14">
+                <TextBlock ui2:Hyperlink.Url="https://github.com/flabbet">
+                    <Run Text="Krzysztof Krysiński (flabbet)" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="20 0">
+            <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
+                <Ellipse.Fill>
+                    <ImageBrush Source="/Images/SocialMedia/Avatars/Equbuxu.png" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Label Margin="10 0 0 0" FontSize="14">
+                <TextBlock ui2:Hyperlink.Url="https://github.com/equbuxu">
+                    <Run Text="Egor Mozgovoy (Equbuxu)" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="20 0">
+            <Ellipse Width="32" Height="32" FlowDirection="LeftToRight">
+                <Ellipse.Fill>
+                    <ImageBrush Source="/Images/SocialMedia/Avatars/CPK.png" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Label Margin="10 0 0 0" FontSize="14">
+                <TextBlock ui2:Hyperlink.Url="https://github.com/CPKreu">
+                    <Run Text="Philip Kreuz (cpk)" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
+        <StackPanel Orientation="Horizontal" Margin="20 0">
+            <Ellipse Width="32" Height="32" RenderOptions.BitmapInterpolationMode="HighQuality" FlowDirection="LeftToRight">
+                <Ellipse.Fill>
+                    <ImageBrush Source="/Images/SocialMedia/Avatars/axin.png" />
+                </Ellipse.Fill>
+            </Ellipse>
+            <Label Margin="10 0 0 0" FontSize="14">
+                <TextBlock ui2:Hyperlink.Url="https://github.com/axinlab">
+                    <Run Text="Anna Kocaj (Axin)" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
+
+        <Label Margin="20 0 0 0" FontSize="14">
+            <TextBlock ui2:Hyperlink.Url="https://github.com/ArcTexel/ArcTexel/graphs/contributors">
+                <Run ui:Translator.Key="OTHER_AWESOME_CONTRIBUTORS" />
+                <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+            </TextBlock>
+        </Label>
+
+        <Separator Margin="0 5 0 5" />
+
+        <StackPanel Spacing="5" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label FontSize="12">
+                <TextBlock ui2:Hyperlink.Url="LICENSE">
+                    <Run ui:Translator.Key="LICENSE" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+
+            <Label FontSize="12">
+                <TextBlock ui2:Hyperlink.Url="Third Party Licenses">
+                    <Run ui:Translator.Key="THIRD_PARTY_LICENSES" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+
+            <Label FontSize="12">
+                <TextBlock ui2:Hyperlink.Url="https://arctexel.net/docs/">
+                    <Run ui:Translator.Key="DOCUMENTATION" />
+                    <Run Text="{DynamicResource icon-link}" Classes="arc-icon" />
+                </TextBlock>
+            </Label>
+        </StackPanel>
+
+        <panels:AlignableWrapPanel DockPanel.Dock="Bottom" HorizontalContentAlignment="Center"
+                                   HorizontalAlignment="Center">
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://arctexel.net"
+                    ui:Translator.TooltipKey="WEBSITE"
+                    Classes="SocialMediaButton" Tag="#e3002d"
+                    Content="{DynamicResource icon-globe}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://discord.gg/tzkQFDkqQS"
+                    Classes="SocialMediaButton" Tag="#5865F2" ui:Translator.TooltipKey="DISCORD"
+                    Content="{DynamicResource icon-discord}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://reddit.com/r/ArcTexel"
+                    Classes="SocialMediaButton" Tag="#FF4500" ui:Translator.TooltipKey="REDDIT"
+                    Content="{DynamicResource icon-reddit}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://store.steampowered.com/app/2218560"
+                    Classes="SocialMediaButton" Tag="#00adee" ui:Translator.TooltipKey="STEAM"
+                    Content="{DynamicResource icon-steam}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://github.com/ArcTexel/ArcTexel"
+                    Classes="SocialMediaButton" Tag="Black" ui:Translator.TooltipKey="GITHUB"
+                    Content="{DynamicResource icon-github}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    CommandParameter="https://www.youtube.com/channel/UCT5XvyvX1q5PAIaXfWmpsMQ"
+                    Classes="SocialMediaButton" Tag="#FF0000" ui:Translator.TooltipKey="YOUTUBE"
+                    Content="{DynamicResource icon-youtube-filled}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    IsVisible="{Binding DisplayDonationButton}"
+                    CommandParameter="https://opencollective.com/arctexel"
+                    Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="DONATE"
+                    Content="{DynamicResource icon-heart-handshake}" />
+            <Button Command="{cmds:Command ArcTexel.Links.OpenHyperlink, UseProvided=True}"
+                    IsVisible="{Binding !DisplayDonationButton}"
+                    CommandParameter="https://store.steampowered.com/app/2435860/ArcTexel__Supporter_Pack/"
+                    Classes="SocialMediaButton" Tag="#d4af37" ui:Translator.TooltipKey="BUY_SUPPORTER_PACK"
+                    Content="{DynamicResource icon-heart-handshake}" />
+        </panels:AlignableWrapPanel>
+    </StackPanel>
+</dialogs:ArcTexelPopup>

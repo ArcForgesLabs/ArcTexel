@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:ArcTexel.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:input="clr-namespace:ArcTexel.Views.Input"
+             xmlns:controls="clr-namespace:ArcTexel.UI.Common.Controls;assembly=ArcTexel.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ArcTexel.Views.Tools.ToolSettings.Settings.SizeSettingView">
+    <Design.DataContext>
+        <settings:SizeSettingViewModel/>
+    </Design.DataContext>
+    
+    <controls:SizeInput VerticalAlignment="Center"
+                     MaxSize="{Binding Max}" 
+                     MinSize="{Binding Min}"
+                     Decimals="{Binding DecimalPlaces}"
+                     Unit="{Binding Unit}"
+                     IsEnabled="{Binding IsEnabled}" FocusNext="False"
+                     DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
+                     Size="{Binding Value, Mode=TwoWay}"/>
+</UserControl>

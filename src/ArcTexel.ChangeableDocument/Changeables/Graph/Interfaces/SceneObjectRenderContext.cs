@@ -1,0 +1,39 @@
+using ArcTexel.ChangeableDocument.Changeables.Animations;
+using ArcTexel.ChangeableDocument.Rendering;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
+
+namespace ArcTexel.ChangeableDocument.Changeables.Graph.Interfaces;
+
+public class SceneObjectRenderContext : RenderContext
+{
+    public RectD LocalBounds { get; }
+    public bool RenderSurfaceIsScene { get; }
+    public RenderOutputProperty TargetPropertyOutput { get; }
+
+    public SceneObjectRenderContext(RenderOutputProperty targetPropertyOutput, Canvas surface, RectD localBounds, KeyFrameTime frameTime,
+        ChunkResolution chunkResolution, VecI renderOutputSize, VecI documentSize, bool renderSurfaceIsScene, ColorSpace processingColorSpace, SamplingOptions desiredSampling, IReadOnlyNodeGraph graph, double opacity) : base(surface, frameTime, chunkResolution, renderOutputSize, documentSize, processingColorSpace, desiredSampling, graph, opacity)
+    {
+        TargetPropertyOutput = targetPropertyOutput;
+        LocalBounds = localBounds;
+        RenderSurfaceIsScene = renderSurfaceIsScene;
+    }
+
+    public override RenderContext Clone()
+    {
+        return new SceneObjectRenderContext(TargetPropertyOutput, RenderSurface, LocalBounds, FrameTime, ChunkResolution, RenderOutputSize, DocumentSize, RenderSurfaceIsScene, ProcessingColorSpace, DesiredSamplingOptions, Graph, Opacity)
+        {
+            VisibleDocumentRegion = VisibleDocumentRegion,
+            AffectedArea = AffectedArea,
+            FullRerender = FullRerender,
+            TargetOutput = TargetOutput,
+            PreviewTextures = PreviewTextures,
+            EditorData = EditorData,
+            KeyboardInfo = KeyboardInfo,
+            PointerInfo = PointerInfo,
+            ViewportData = ViewportData,
+            CloneDepth = CloneDepth + 1,
+        };
+    }
+}

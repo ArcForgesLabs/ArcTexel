@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:input="clr-namespace:ArcTexel.Views.Input"
+             xmlns:settings="clr-namespace:ArcTexel.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:controls="clr-namespace:ArcTexel.UI.Common.Controls;assembly=ArcTexel.UI.Common"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ArcTexel.Views.Tools.ToolSettings.Settings.FloatSettingView">
+    <Design.DataContext>
+        <settings:FloatSettingViewModel/>
+    </Design.DataContext>
+    <controls:NumberInput x:Name="NumberInput"
+                       Value="{Binding Value, Mode=TwoWay}"
+                       Min="{Binding Min}"
+                       Max="{Binding Max}"
+                       DraggingGrabber="{Binding MergeChanges, Mode=OneWayToSource}"
+                       Decimals="{Binding DecimalPlaces}"
+                       Margin="0,0,0,0" 
+                       FocusNext="False"
+                       MinWidth="40" />
+</UserControl>

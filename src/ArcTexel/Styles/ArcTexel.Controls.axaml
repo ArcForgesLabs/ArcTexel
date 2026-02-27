@@ -1,0 +1,31 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Styles.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/CommandsMenu.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/BlendModeComboBox.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Buttons/DialogButtonTheme.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/ShortcutBoxTemplate.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/DocumentTabTemplate.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/Timeline.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/KeyFrame.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/TimelineSlider.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/TimelineGroupHeader.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/NodeFrameView.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/NodeGraphView.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/NodeView.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/NodeSocket.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/ConnectionView.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/NodePicker.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/ShortcutsTemplateCard.axaml"/>
+                <MergeResourceInclude Source="avares://ArcTexel/Styles/Templates/StringEditor.axaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Styles.Resources>
+
+    <StyleInclude Source="avares://ArcTexel/Styles/Templates/NodePropertyViewTemplate.axaml"/>
+    <StyleInclude Source="avares://ArcTexel/Styles/PortingWipStyles.axaml"/>
+    <StyleInclude Source="avares://ArcTexel/Styles/ToolPickerButton.Styles.axaml"/>
+</Styles>

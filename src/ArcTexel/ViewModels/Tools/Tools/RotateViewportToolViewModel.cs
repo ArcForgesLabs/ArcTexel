@@ -1,0 +1,30 @@
+using Avalonia.Input;
+using Drawie.Backend.Core.Vector;
+using ArcTexel.Models.Commands.Attributes.Commands;
+using ArcTexel.UI.Common.Fonts;
+using ArcTexel.UI.Common.Localization;
+using ArcTexel.Views.Overlays.BrushShapeOverlay;
+
+namespace ArcTexel.ViewModels.Tools.Tools;
+
+[Command.Tool(Key = Key.N)]
+internal class RotateViewportToolViewModel : ToolViewModel
+{
+    public override string ToolNameLocalizationKey => "ROTATE_VIEWPORT_TOOL";
+    public override Type[]? SupportedLayerTypes { get; } = null; // null = all
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
+    public override bool HideHighlight => true;
+    public override bool StopsLinkedToolOnUse => false;
+    public override LocalizedString Tooltip => new LocalizedString("ROTATE_VIEWPORT_TOOLTIP", Shortcut);
+
+    public override string DefaultIcon => ArcPerfectIcons.RotateView;
+
+    public RotateViewportToolViewModel()
+    {
+    }
+
+    protected override void OnSelected(bool restoring)
+    {
+        ActionDisplay = new LocalizedString("ROTATE_VIEWPORT_ACTION_DISPLAY");
+    }
+}

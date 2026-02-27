@@ -1,0 +1,12 @@
+namespace ArcTexel.ChangeableDocument.Changeables.Graph.Nodes;
+
+[Flags]
+public enum CacheTriggerFlags
+{
+    None = 0,
+    Inputs = 1,
+    Timeline = 2,
+    RenderSize = 4,
+    ChunkResolution = 8,
+    All = Inputs | Timeline | RenderSize | ChunkResolution
+}

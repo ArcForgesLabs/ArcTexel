@@ -1,0 +1,177 @@
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.ColorsImpl;
+using Drawie.Backend.Core.Numerics;
+using ArcTexel.ChangeableDocument.Changeables.Graph.Interfaces;
+using ArcTexel.ChangeableDocument.Rendering;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Backend.Core.Surfaces.ImageData;
+using Drawie.Numerics;
+using ArcTexel.ChangeableDocument.Changeables.Interfaces;
+using ArcTexel.ChangeableDocument.Changes.Structure;
+
+namespace ArcTexel.ChangeableDocument.Changeables.Graph.Nodes;
+
+public abstract class RenderNode : Node, IHighDpiRenderNode
+{
+    public const string OutputPropertyName = "Output";
+    public RenderOutputProperty Output { get; }
+
+    public bool AllowHighDpiRendering { get; set; } = false;
+
+    public bool RendersInAbsoluteCoordinates { get; set; } = false;
+
+    private TextureCache textureCache = new();
+
+    private VecI lastDocumentSize = VecI.Zero;
+
+    public RenderNode()
+    {
+        Painter painter = new Painter(Paint);
+        Output = CreateRenderOutput(OutputPropertyName, "OUTPUT",
+            () => painter,
+            () => this is IRenderInput renderInput ? renderInput.Background.Value : null);
+    }
+
+    protected override void OnExecute(RenderContext context)
+    {
+        foreach (var prop in OutputProperties)
+        {
+            if (prop is RenderOutputProperty output)
+            {
+                output.ChainToPainterValue();
+            }
+        }
+
+        lastDocumentSize = context.DocumentSize;
+    }
+
+    protected virtual void Paint(RenderContext context, Canvas surface)
+    {
+        if (surface == null)
+            return;
+
+        Canvas target = surface;
+        bool useIntermediate = !AllowHighDpiRendering
+                               && context.RenderOutputSize is { X: > 0, Y: > 0 }
+                               && (surface.DeviceClipBounds.Size != context.RenderOutputSize ||
+                                   (RendersInAbsoluteCoordinates && !surface.TotalMatrix.IsIdentity));
+        if (useIntermediate)
+        {
+            Texture intermediate =
+                textureCache.RequestTexture(-6451, context.RenderOutputSize, context.ProcessingColorSpace);
+            target = intermediate.DrawingSurface.Canvas;
+        }
+
+        OnPaint(context, target);
+
+        if (useIntermediate)
+        {
+            if (RendersInAbsoluteCoordinates)
+            {
+                surface.Save();
+                surface.Scale((float)context.ChunkResolution.InvertedMultiplier());
+            }
+
+            if (context.DesiredSamplingOptions != SamplingOptions.Default)
+            {
+                using var snapshot = target.Surface.Snapshot();
+                surface.DrawImage(snapshot, 0, 0, context.DesiredSamplingOptions);
+            }
+            else
+            {
+                surface.DrawSurface(target.Surface, 0, 0);
+            }
+
+            if (RendersInAbsoluteCoordinates)
+            {
+                surface.Restore();
+            }
+        }
+
+        RenderPreviews(context);
+    }
+
+    protected abstract void OnPaint(RenderContext context, Canvas surface);
+
+    protected void RenderPreviews(RenderContext ctx)
+    {
+        var previewToRender = ctx.GetPreviewTexturesForNode(Id);
+        if (previewToRender == null || previewToRender.Count == 0)
+            return;
+
+        foreach (var preview in previewToRender)
+        {
+            if (!ShouldRenderPreview(preview.ElementToRender))
+                continue;
+
+            if (preview.Texture == null)
+                continue;
+
+            int saved = preview.Texture.DrawingSurface.Canvas.Save();
+            preview.Texture.DrawingSurface.Canvas.Clear();
+
+            var bounds = GetPreviewBounds(ctx, preview.ElementToRender);
+            if (bounds == null)
+            {
+                bounds = new RectD(0, 0, ctx.RenderOutputSize.X, ctx.RenderOutputSize.Y);
+            }
+
+            VecD scaling = PreviewUtility.CalculateUniformScaling(bounds.Value.Size, preview.Texture.Size);
+            VecD offset = PreviewUtility.CalculateCenteringOffset(bounds.Value.Size, preview.Texture.Size, scaling);
+            RenderContext adjusted =
+                PreviewUtility.CreatePreviewContext(ctx, scaling, bounds.Value.Size, preview.Texture.Size);
+
+            preview.Texture.DrawingSurface.Canvas.Translate((float)offset.X, (float)offset.Y);
+            preview.Texture.DrawingSurface.Canvas.Scale((float)scaling.X, (float)scaling.Y);
+            preview.Texture.DrawingSurface.Canvas.Translate((float)-bounds.Value.X, (float)-bounds.Value.Y);
+
+            adjusted.RenderSurface = preview.Texture.DrawingSurface.Canvas;
+            RenderPreview(preview.Texture.DrawingSurface, adjusted, preview.ElementToRender);
+            preview.Texture.DrawingSurface.Canvas.RestoreToCount(saved);
+        }
+    }
+
+    protected virtual bool ShouldRenderPreview(string elementToRenderName)
+    {
+        return true;
+    }
+
+    public virtual RectD? GetPreviewBounds(RenderContext ctx, string elementToRenderName)
+    {
+        return null;
+    }
+
+    public virtual void RenderPreview(DrawingSurface renderOn, RenderContext context,
+        string elementToRenderName)
+    {
+        int saved = renderOn.Canvas.Save();
+        OnPaint(context, renderOn.Canvas);
+        renderOn.Canvas.RestoreToCount(saved);
+    }
+
+    protected Texture RequestTexture(int id, VecI size, ColorSpace processingCs, bool clear = true)
+    {
+        return textureCache.RequestTexture(id, size, processingCs, clear);
+    }
+
+    internal override void SerializeAdditionalDataInternal(IReadOnlyDocument target, Dictionary<string, object> additionalData)
+    {
+        base.SerializeAdditionalDataInternal(target, additionalData);
+        additionalData["AllowHighDpiRendering"] = AllowHighDpiRendering;
+    }
+
+    internal override void DeserializeAdditionalDataInternal(IReadOnlyDocument target, IReadOnlyDictionary<string, object> data,
+        List<IChangeInfo> infos)
+    {
+        base.DeserializeAdditionalDataInternal(target, data, infos);
+
+        if (data.TryGetValue("AllowHighDpiRendering", out var value))
+            AllowHighDpiRendering = (bool)value;
+    }
+
+    public override void Dispose()
+    {
+        base.Dispose();
+        textureCache.Dispose();
+    }
+}

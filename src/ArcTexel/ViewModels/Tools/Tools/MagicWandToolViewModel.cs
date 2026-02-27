@@ -1,0 +1,68 @@
+using Avalonia.Input;
+using ArcTexel.ChangeableDocument.Enums;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Vector;
+using ArcTexel.Models.Commands.Attributes.Commands;
+using ArcTexel.Models.Handlers;
+using ArcTexel.Models.Handlers.Tools;
+using ArcTexel.Models.Tools;
+using Drawie.Numerics;
+using ArcTexel.UI.Common.Fonts;
+using ArcTexel.UI.Common.Localization;
+using ArcTexel.ViewModels.Tools.ToolSettings.Toolbars;
+using ArcTexel.Views.Overlays.BrushShapeOverlay;
+
+namespace ArcTexel.ViewModels.Tools.Tools;
+
+[Command.Tool(Key = Key.W)]
+internal class MagicWandToolViewModel : ToolViewModel, IMagicWandToolHandler
+{
+    public override LocalizedString Tooltip => new LocalizedString("MAGIC_WAND_TOOL_TOOLTIP", Shortcut);
+    private LocalizedString defaultActionDisplay => new LocalizedString("MAGIC_WAND_ACTION_DISPLAY");
+    public override string ToolNameLocalizationKey => "MAGIC_WAND_TOOL";
+    public override Type[]? SupportedLayerTypes { get; } = null;
+    private SelectionMode KeyModifierSelectionMode = SelectionMode.New;
+    public SelectionMode ResultingSelectionMode => KeyModifierSelectionMode != SelectionMode.New ? KeyModifierSelectionMode : SelectMode;
+    [Settings.Enum("MODE_LABEL")]
+    public SelectionMode SelectMode => GetValue<SelectionMode>();
+
+    [Settings.Enum("SCOPE_LABEL")]
+    public DocumentScope DocumentScope => GetValue<DocumentScope>();
+
+    [Settings.Percent("TOLERANCE_LABEL", ExposedByDefault = false)]
+    public float Tolerance => GetValue<float>();
+
+    public override string DefaultIcon => ArcPerfectIcons.MagicWand;
+
+    public MagicWandToolViewModel()
+    {
+        Toolbar = ToolbarFactory.Create(this);
+        ActionDisplay = defaultActionDisplay;
+    }
+
+    public override Type LayerTypeToCreateOnEmptyUse { get; } = null;
+
+    public override void UseTool(VecD pos)
+    {
+        ViewModelMain.Current?.DocumentManagerSubViewModel.ActiveDocument?.Tools.UseMagicWandTool();
+    }
+
+    public override void KeyChanged(bool ctrlIsDown, bool shiftIsDown, bool altIsDown, Key argsKey)
+    {
+        if (shiftIsDown)
+        {
+            ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_SHIFT");
+            KeyModifierSelectionMode = SelectionMode.Add;
+        }
+        else if (ctrlIsDown)
+        {
+            ActionDisplay = new LocalizedString("MAGIC_WAND_ACTION_DISPLAY_CTRL");
+            KeyModifierSelectionMode = SelectionMode.Subtract;
+        }
+        else
+        {
+            ActionDisplay = defaultActionDisplay;
+            KeyModifierSelectionMode = SelectionMode.New;
+        }
+    }
+}

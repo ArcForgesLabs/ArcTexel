@@ -1,0 +1,60 @@
+using ArcTexel.Extensions.CommonApi.FlyUI;
+using ArcTexel.Extensions.CommonApi.FlyUI.Properties;
+using ArcTexel.Extensions.Sdk.Attributes;
+
+namespace ArcTexel.Extensions.Sdk.Api.FlyUI;
+
+[ControlTypeId("Border")]
+public class Border : SingleChildLayoutElement
+{
+    public Color Color { get; set; }
+    public Edges Thickness { get; set; }
+
+    public Edges CornerRadius { get; set; }
+
+    public Edges Padding { get; set; }
+
+    public Edges Margin { get; set; }
+
+    public Color BackgroundColor { get; set; }
+
+    public double Width { get; set; }
+
+    public double Height { get; set; }
+
+    public Border(LayoutElement child = null, Color color = default, Edges thickness = default,
+        Edges cornerRadius = default, Edges padding = default, Edges margin = default, double width = -1,
+        double height = -1,
+        Color backgroundColor = default, Cursor? cursor = null) : base(cursor)
+    {
+        Child = child;
+        Color = color;
+        Thickness = thickness;
+        CornerRadius = cornerRadius;
+        Padding = padding;
+        Margin = margin;
+        Width = width;
+        Height = height;
+        BackgroundColor = backgroundColor;
+    }
+
+    protected override ControlDefinition CreateControl()
+    {
+        ControlDefinition controlDefinition = new(UniqueId, GetType());
+        if (Child != null)
+        {
+            controlDefinition.Children.Add(Child.BuildNative());
+        }
+
+        controlDefinition.AddProperty(Color);
+        controlDefinition.AddProperty(Thickness);
+        controlDefinition.AddProperty(CornerRadius);
+        controlDefinition.AddProperty(Padding);
+        controlDefinition.AddProperty(Margin);
+        controlDefinition.AddProperty(Width);
+        controlDefinition.AddProperty(Height);
+        controlDefinition.AddProperty(BackgroundColor);
+
+        return controlDefinition;
+    }
+}

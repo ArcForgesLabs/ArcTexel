@@ -1,0 +1,79 @@
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Input;
+using CommunityToolkit.Mvvm.Input;
+using ArcTexel.Extensions.UI;
+using ArcTexel.Helpers.Extensions;
+using ArcTexel.UI.Common.Controls;
+using ArcTexel.UI.Common.Fonts;
+using ArcTexel.UI.Common.Localization;
+
+namespace ArcTexel.ViewModels.Menu.MenuBuilders;
+
+internal class ToggleSnappingMenuBuilder : MenuItemBuilder
+{
+    public override void ModifyMenuTree(ICollection<MenuItem> tree)
+    {
+        if (TryFindMenuItem(tree, "VIEW", out MenuItem? viewItem))
+        {
+            ToggleableMenuItem snappingItem = new ToggleableMenuItem();
+            Translator.SetKey(snappingItem, "TOGGLE_SNAPPING");
+            snappingItem.Icon = new Image()
+            {
+                Source = UI.Common.Fonts.ArcPerfectIconExtensions.ToIcon(ArcPerfectIcons.Snapping),
+                Width = Models.Commands.XAML.Menu.IconDimensions,
+                Height = Models.Commands.XAML.Menu.IconDimensions
+            };
+
+            BindItem(snappingItem);
+            viewItem.Items.Add(snappingItem);
+        }
+    }
+
+    public override void ModifyMenuTree(ICollection<NativeMenuItem> tree)
+    {
+        if (TryFindMenuItem(tree, "VIEW", out NativeMenuItem? viewItem))
+        {
+            viewItem.Menu.Items.Add(new NativeMenuItemSeparator());
+            NativeMenuItem gridLinesItem = new NativeMenuItem();
+            gridLinesItem.ToggleType = NativeMenuItemToggleType.CheckBox;
+            Translator.SetKey(gridLinesItem, "TOGGLE_SNAPPING");
+
+            gridLinesItem.Icon = ArcPerfectIconExtensions.ToIcon(ArcPerfectIcons.Snapping).ToBitmap(IconDimensions);
+            BindItem(gridLinesItem);
+            viewItem.Menu.Items.Add(gridLinesItem);
+        }
+    }
+
+    private void BindItem(ToggleableMenuItem gridLinesItem)
+    {
+        gridLinesItem.Bind(ToggleableMenuItem.IsCheckedProperty, new Binding("ViewportSubViewModel.SnappingEnabled")
+        {
+            Source = ViewModelMain.Current,
+            Mode = BindingMode.TwoWay
+        });
+
+        gridLinesItem.Bind(InputElement.IsEnabledProperty, new Binding("!!DocumentManagerSubViewModel.ActiveDocument")
+        {
+            Source = ViewModelMain.Current
+        });
+    }
+    
+    private void BindItem(NativeMenuItem gridLinesItem)
+    {
+        gridLinesItem.Bind(NativeMenuItem.IsCheckedProperty, new Binding("ViewportSubViewModel.SnappingEnabled")
+        {
+            Source = ViewModelMain.Current,
+        });
+
+        gridLinesItem.Bind(NativeMenuItem.IsEnabledProperty, new Binding("!!DocumentManagerSubViewModel.ActiveDocument")
+        {
+            Source = ViewModelMain.Current
+        });
+        
+        gridLinesItem.Command = new RelayCommand(() =>
+        {
+            ViewModelMain.Current.ViewportSubViewModel.SnappingEnabled = !ViewModelMain.Current.ViewportSubViewModel.SnappingEnabled;
+        });
+    }
+}

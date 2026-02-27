@@ -1,0 +1,36 @@
+using System.Globalization;
+using ArcTexel.Extensions.CommonApi.Palettes;
+using ArcTexel.Models.Palettes;
+
+namespace ArcTexel.Helpers.Converters;
+
+internal class PaletteColorEqualsConverter : SingleInstanceMultiValueConverter<PaletteColorEqualsConverter>
+{
+    public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+        return Convert(new[] { value }, targetType, parameter, culture);
+    }
+
+    public override object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
+    {
+        if (values.Count < 2)
+        {
+            return false;
+        }
+
+        PaletteColor color = values[0] as PaletteColor;
+        if (color == null)
+        {
+            return false;
+        }
+
+        if (values[1] is Avalonia.Media.Color avColor)
+        {
+            return color.R == avColor.R &&
+                   color.G == avColor.G &&
+                   color.B == avColor.B;
+        }
+
+        return false;
+    }
+}

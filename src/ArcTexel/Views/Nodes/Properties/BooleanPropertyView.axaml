@@ -1,0 +1,15 @@
+<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:ArcTexel.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:ArcTexel.Extensions.UI;assembly=ArcTexel.Extensions"
+                             xmlns:converters="clr-namespace:ArcTexel.Helpers.Converters"
+                             xmlns:localization="clr-namespace:ArcTexel.UI.Common.Localization;assembly=ArcTexel.UI.Common"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:Class="ArcTexel.Views.Nodes.Properties.BooleanPropertyView">
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <CheckBox localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding ShowInputField}" IsChecked="{Binding Value}"/>
+        <TextBlock localization:Translator.Key="{Binding DisplayName}" Margin="0,0,4,0" IsVisible="{Binding !ShowInputField}" />
+    </StackPanel>
+</properties:NodePropertyView>

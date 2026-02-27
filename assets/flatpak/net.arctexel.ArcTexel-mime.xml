@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+SPDX-License-Identifier: GPL-3.0-or-later
+-->
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+
+  <!-- Native Arc format -->
+  <mime-type type="application/x-arc">
+    <comment>Arc Project File</comment>
+    <generic-icon name="application-x-arc"/>
+    <glob pattern="*.arc"/>
+  </mime-type>
+</mime-info>
+

@@ -1,0 +1,113 @@
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Platform.Storage;
+using Avalonia.Threading;
+using Drawie.Backend.Core;
+using Drawie.Backend.Core.Bridge;
+using Drawie.Interop.Avalonia.Core;
+using Drawie.Interop.Avalonia.OpenGl;
+using Drawie.Numerics;
+using ArcTexel.Helpers.Extensions;
+using ArcTexel.Helpers;
+using ArcTexel.Helpers.Behaviours;
+using ArcTexel.Models.Controllers;
+using ArcTexel.Models.IO;
+using ArcTexel.UI.Common.Behaviors;
+using ArcTexel.ViewModels;
+
+namespace ArcTexel.Views;
+
+public partial class MainView : UserControl
+{
+    private ViewModelMain Context => (ViewModelMain)DataContext;
+
+    public MainView()
+    {
+        InitializeComponent();
+        TextBoxFocusBehavior.FallbackFocusElement = FocusableGrid;
+        DropGrid.AddHandler(DragDrop.DragEnterEvent, MainView_DragEnter);
+        DropGrid.AddHandler(DragDrop.DragLeaveEvent, MainView_DragLeave);
+        DropGrid.AddHandler(DragDrop.DropEvent, MainView_Drop);
+        Loaded += OnLoaded;
+    }
+
+    private void OnLoaded(object? sender, RoutedEventArgs e)
+    {
+        // hacky way to fix first element not rendering
+        // feel free to make a proper fix inside Drawie
+        if (IDrawieInteropContext.Current is OpenGlInteropContext)
+        {
+            OpenGlInitDummy.IsVisible = true;
+            OpenGlInitDummy.Texture = new Texture(new Texture(new VecI(1, 1)));
+            OpenGlInitDummy.QueueNextFrame();
+            Dispatcher.UIThread.Post(() =>
+            {
+                OpenGlInitDummy.Texture.Dispose();
+                OpenGlInitDummy.Texture = null;
+                OpenGlInitDummy.IsVisible = false;
+            });
+        }
+        else
+        {
+            OpenGlInitDummy.IsVisible = false;
+        }
+
+        if (DataContext is ViewModelMain vm)
+        {
+            vm.OnStartup();
+        }
+    }
+
+    private void MainView_Drop(object sender, DragEventArgs e)
+    {
+        Context.ActionDisplays[nameof(MainView_Drop)] = null;
+
+        var fileDropList = e.Data.GetFiles();
+        var storageItems = fileDropList as IStorageItem[] ?? fileDropList?.ToArray();
+        if (storageItems == null || storageItems.Length == 0)
+        {
+            if (!ColorHelper.ParseAnyFormat(e.Data, out var color))
+            {
+                return;
+            }
+
+            e.DragEffects = DragDropEffects.Copy;
+            Context.ColorsSubViewModel.PrimaryColor = color.Value;
+            return;
+        }
+
+        if (storageItems is { Length: > 0 })
+        {
+            foreach (var item in storageItems)
+            {
+                Importer.IsSupportedFile(item.Path.LocalPath);
+                Context.FileSubViewModel.OpenFromPath(item.Path.LocalPath);
+            }
+        }
+    }
+
+    private void MainView_DragEnter(object sender, DragEventArgs e)
+    {
+        if (!ClipboardController.IsImage(e.DataTransfer))
+        {
+            if (ColorHelper.ParseAnyFormat(e.Data, out _))
+            {
+                Context.ActionDisplays[nameof(MainView_Drop)] = "PASTE_AS_PRIMARY_COLOR";
+                e.DragEffects = DragDropEffects.Copy;
+                return;
+            }
+
+            e.DragEffects = DragDropEffects.None;
+            e.Handled = true;
+            return;
+        }
+
+        Context.ActionDisplays[nameof(MainView_Drop)] = "IMPORT_AS_NEW_FILE";
+    }
+
+    private void MainView_DragLeave(object sender, DragEventArgs e)
+    {
+        Context.ActionDisplays[nameof(MainView_Drop)] = null;
+    }
+}

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2025 Krzysztof Krysiński -->
+<component type="desktop-application">
+  <id>net.arctexel.ArcTexel</id>
+  
+  <name>ArcTexel</name>
+  <summary>Universal node-based 2D editor</summary>
+  
+  <metadata_license>CC-BY-SA-4.0</metadata_license>
+  <project_license>LGPL-3.0-or-later</project_license>
+
+  <developer id="net.arctexel">
+    <name>ArcTexel</name>
+  </developer>
+
+  <requires>
+    <control>keyboard</control>
+    <control>pointing</control>
+    <display_length compare="ge">768</display_length>
+  </requires>
+
+  <url type="homepage">https://arctexel.net</url>
+  <url type="bugtracker">https://github.com/ArcTexel/ArcTexel/issues</url>
+  <url type="donation">https://arctexel.net/download</url>
+  <url type="contact">https://arctexel.net/help</url>
+  <url type="faq">https://arctexel.net/docs/faq</url>
+  <url type="contribute">https://github.com/ArcTexel/ArcTexel</url>
+  <url type="vcs-browser">https://github.com/ArcTexel/ArcTexel</url>
+
+  <icon type="stock">net.arctexel.ArcTexel</icon>
+
+  <branding>
+    <color type="primary" scheme_preference="light">#dedede</color>
+    <color type="primary" scheme_preference="dark">#1a1a1a</color>
+  </branding>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="2.0.1.16" date="2025-10-06">
+      <url type="details">https://forum.arctexel.net/t/changelog-2-0-1-16/461</url>
+      <description>
+        <p>Posterize and Text Nodes, transforming improvements and new languagesW</p>
+      </description>      
+    </release>
+    <release version="2.0.1.14" date="2025-09-10">
+      <url type="details">https://forum.arctexel.net/t/changelog-2-0-1-14/439/1</url>
+      <description>
+        <p>Fixed rectangle rendering issues</p>
+      </description>      
+    </release>
+  </releases>
+  
+  <description>
+    <p>
+	ArcTexel is a universal 2D editor designed for all kinds of creative work. Whether you want to make game sprites, paint illustrations, design logos, edit images, or create animations, ArcTexel gives you the tools to bring your ideas to life—all in a clean and familiar interface.
+    </p>
+    <p>
+	Powered by a Node Graph for advanced, non-destructive editing, ArcTexel comes with three unique toolsets that can be used together on the same canvas:
+    </p>
+    <p>
+	Pixel Art – pixel-perfect drawing tools for sprites and retro graphics
+	Painting – soft brushes, smooth lines, and anti-aliased shapes
+		    Vector – scalable paths and shapes for logos and clean designs
+    </p>
+  </description>
+  
+  <launchable type="desktop-id">net.arctexel.ArcTexel.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+	    <image>https://raw.githubusercontent.com/arctexel/arctexel/refs/heads/flatpak/assets/flatpak/screenshots/anim.png</image>
+	    <caption>Frame-by-frame animation with onion skinning</caption>
+    </screenshot>
+    <screenshot>
+	    <image>https://raw.githubusercontent.com/arctexel/arctexel/refs/heads/flatpak/assets/flatpak/screenshots/graph.png</image>
+	    <caption>Procedurally generated islands</caption>
+    </screenshot>
+    <screenshot>
+	    <image>https://raw.githubusercontent.com/arctexel/arctexel/refs/heads/flatpak/assets/flatpak/screenshots/palettes.png</image>
+	    <caption>Palette browser</caption>
+    </screenshot>
+    <screenshot>
+	    <image>https://raw.githubusercontent.com/arctexel/arctexel/refs/heads/flatpak/assets/flatpak/screenshots/vector.png</image>
+	    <caption>Vectors editing tools</caption>
+    </screenshot>
+  </screenshots>
+</component>

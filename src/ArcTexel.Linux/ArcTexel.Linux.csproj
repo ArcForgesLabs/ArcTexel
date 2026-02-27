@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <Configurations>Debug;Release;DebugSteam</Configurations>
+        <Platforms>AnyCPU;x64</Platforms>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\ArcTexel.OperatingSystem\ArcTexel.OperatingSystem.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="DeviceId.Linux" Version="6.9.0" />
+    </ItemGroup>
+
+</Project>
+

@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:colorPicker="clr-namespace:ColorPicker;assembly=ColorPicker.AvaloniaUI"
+             xmlns:converters="clr-namespace:ArcTexel.Helpers.Converters"
+             xmlns:subViewModels="clr-namespace:ArcTexel.ViewModels.SubViewModels"
+             xmlns:dock="clr-namespace:ArcTexel.ViewModels.Dock"
+             xmlns:input="clr-namespace:ArcTexel.Views.Input"
+             xmlns:behaviours="clr-namespace:ArcTexel.Helpers.Behaviours"
+             xmlns:dock1="clr-namespace:ArcTexel.Views.Dock"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="dock:ColorPickerDockViewModel"
+             x:Class="ArcTexel.Views.Dock.ColorPickerDockView">
+    <Design.DataContext>
+        <dock:ColorPickerDockViewModel />
+    </Design.DataContext>
+
+    <input:SmallColorPicker
+        SelectedColor="{Binding ColorsSubViewModel.PrimaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+        SecondaryColor="{Binding ColorsSubViewModel.SecondaryColor, Mode=TwoWay, Converter={converters:GenericColorToMediaColorConverter}}"
+        ColorState="{Binding ColorsSubViewModel.PrimaryColorState, Mode=TwoWay}"
+        EnableGradientsTab="False"
+        EnableRecentBrushes="False"
+        UseHintColor="False">
+    </input:SmallColorPicker>
+</UserControl>

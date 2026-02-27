@@ -1,0 +1,14 @@
+syntax = "proto3";
+package ArcTexel.Palettes;
+
+import "PaletteColor.proto";
+
+option csharp_namespace = "ArcTexel.Extensions.CommonApi.Palettes";
+
+message ExtensionPalette
+{
+  string Name = 1;
+  repeated ArcTexel.Palettes.PaletteColor Colors = 2;
+  bool IsFavourite = 3;
+  string FileName = 4;
+}

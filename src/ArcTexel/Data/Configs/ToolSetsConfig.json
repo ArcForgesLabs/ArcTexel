@@ -1,0 +1,197 @@
+{
+  "CustomTools": [
+    {
+      "ToolName": "Brightness",
+      "Brush": "/BrushTools/Brightness.arc",
+      "Icon": "icon-sun",
+      "ToolTip": "BRIGHTNESS_TOOL_TOOLTIP",
+      "DefaultShortcut": "U",
+      "SupportsSecondaryActionOnRightClick": true,
+      "ActionDisplays": [
+        {
+          "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_DEFAULT"
+        },
+        {
+          "Modifiers": "Ctrl",
+          "ActionDisplay": "BRIGHTNESS_TOOL_ACTION_DISPLAY_CTRL"
+        }
+      ]
+    }
+  ],
+  "ToolSets": [
+    {
+      "Name": "PIXEL_ART_TOOLSET",
+      "Icon": "icon-lowres-circle",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Move",
+          "Settings": {
+            "BilinearTransform": false
+          }
+        },
+        {
+          "ToolName": "Pen",
+          "Settings": {
+            "ExposePixelPerfectEnabled": true,
+            "DefaultToolSize": 1,
+            "Spacing": 0,
+            "DefaultBrush": "Pixel Circle",
+            "AntiAliasing": false
+          }
+        },
+        "Select",
+        {
+          "ToolName": "MagicWand",
+          "Settings": {
+            "Spacing": 0
+          }
+        },
+        "Lasso",
+        {
+          "ToolName": "FloodFill",
+          "Settings": {
+            "Tolerance": 0,
+            "FillMode": "Overlay"
+          }
+        },
+        "RasterLine",
+        "RasterEllipse",
+        "RasterRectangle",
+        {
+          "ToolName": "Text",
+          "Settings": {
+            "AntiAliasing": false,
+            "ForceLowDpiRendering": true
+          },
+          "Icon": "icon-text-pixel"
+        },
+        {
+          "ToolName": "Eraser",
+          "Settings": {
+            "Spacing": 0,
+            "DefaultToolSize": 1,
+          }
+        },
+        {
+          "ToolName": "Brightness",
+          "Settings": {
+            "AntiAliasing": false
+          }
+        },
+        "ColorPicker",
+        "Zoom"
+      ]
+    },
+    {
+      "Name": "PAINT_TOOLSET",
+      "Icon": "icon-paint-brush",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Move",
+          "Settings": {
+            "BilinearTransform": true
+          }
+        },
+        {
+          "ToolName": "Pen",
+          "Settings": {
+            "AntiAliasing": true,
+            "PixelPerfectEnabled": false,
+            "DefaultToolSize": 10,
+            "DefaultBrush": "Basic"
+          }
+        },
+        "Select",
+        {
+          "ToolName": "MagicWand",
+          "Settings": {
+            "ExposeTolerance": true
+          }
+        },
+        "Lasso",
+        {
+          "ToolName": "FloodFill",
+          "Settings": {
+            "ExposeTolerance": true,
+            "ExposeFillMode": true
+          }
+        },
+        {
+          "ToolName": "RasterLine",
+          "Settings": {
+            "AntiAliasing": true
+          },
+          "Icon": "icon-line"
+        },
+        {
+          "ToolName": "RasterEllipse",
+          "Settings": {
+            "AntiAliasing": true
+          },
+          "Icon": "icon-circle"
+        },
+        {
+          "ToolName": "RasterRectangle",
+          "Settings": {
+            "AntiAliasing": true
+          },
+          "Icon": "icon-square"
+        },
+        {
+          "ToolName": "Text",
+          "Settings": {
+            "AntiAliasing": true,
+            "ForceLowDpiRendering": true
+          },
+          "Icon": "icon-text-antialiased"
+        },
+        {
+          "ToolName": "Eraser",
+          "Settings": {
+            "AntiAliasing": true,
+            "DefaultToolSize": 10
+          }
+        },
+        {
+          "ToolName": "Brightness",
+          "Settings": {
+            "AntiAliasing": true
+          }
+        },
+        "ColorPicker",
+        "Zoom"
+      ]
+    },
+    {
+      "Name": "VECTOR_TOOLSET",
+      "Icon": "icon-vector-pen",
+      "Tools": [
+        "MoveViewport",
+        "RotateViewport",
+        {
+          "ToolName": "Move",
+          "Settings": {
+            "BilinearTransform": true
+          }
+        },
+        "VectorPath",
+        "VectorLine",
+        "VectorEllipse",
+        "VectorRectangle",
+        {
+          "ToolName": "Text",
+          "Settings": {
+            "AntiAliasing": true,
+            "ForceLowDpiRendering": false
+          }
+        },
+        "ColorPicker",
+        "Zoom"
+      ]
+    }
+  ]
+}

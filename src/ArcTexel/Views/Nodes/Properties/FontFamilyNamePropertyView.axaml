@@ -1,0 +1,25 @@
+<properties:NodePropertyView xmlns="https://github.com/avaloniaui"
+                             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                             xmlns:properties="clr-namespace:ArcTexel.Views.Nodes.Properties"
+                             xmlns:ui="clr-namespace:ArcTexel.UI.Common.Localization;assembly=ArcTexel.UI.Common"
+                             xmlns:converters="clr-namespace:ArcTexel.Helpers.Converters"
+                             xmlns:behaviours="clr-namespace:ArcTexel.Helpers.Behaviours"
+                             xmlns:properties1="clr-namespace:ArcTexel.ViewModels.Nodes.Properties"
+                             xmlns:input="clr-namespace:ArcTexel.Views.Input"
+                             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+                             x:DataType="properties1:FontFamilyNamePropertyViewModel"
+                             x:Class="ArcTexel.Views.Nodes.Properties.FontFamilyNamePropertyView">
+    <DockPanel LastChildFill="True"
+        HorizontalAlignment="{Binding IsInput, Converter={converters:BoolToValueConverter FalseValue='Right', TrueValue='Stretch'}}">
+        <TextBlock ui:Translator.TooltipKey="{Binding DisplayName}" VerticalAlignment="Center" ui:Translator.Key="{Binding DisplayName}" />
+        <input:FontFamilyPicker Margin="5 0" PointerPressed="InputElement_OnPointerPressed"
+           FontIndex="{Binding FontFamilyIndex, Mode=TwoWay}"
+                          IsVisible="{Binding ShowInputField}">
+            <Interaction.Behaviors>
+                <behaviours:GlobalShortcutFocusBehavior />
+            </Interaction.Behaviors>
+        </input:FontFamilyPicker>
+    </DockPanel>
+</properties:NodePropertyView>

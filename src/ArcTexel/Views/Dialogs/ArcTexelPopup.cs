@@ -1,0 +1,214 @@
+using System.Threading.Tasks;
+using System.Windows.Input;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Platform;
+using Avalonia.Styling;
+using Avalonia.Threading;
+using CommunityToolkit.Mvvm.Input;
+using ArcDocks.Avalonia.Helpers;
+using ArcTexel.Extensions.CommonApi;
+using ArcTexel.Extensions.CommonApi.Async;
+using ArcTexel.Extensions.CommonApi.UserPreferences.Settings.ArcTexel;
+using ArcTexel.Extensions.CommonApi.Windowing;
+using ArcTexel.Extensions.UI;
+using ArcTexel.ViewModels;
+
+namespace ArcTexel.Views.Dialogs;
+
+[TemplatePart("PART_ResizePanel", typeof(Panel))]
+[TemplatePart("Part_TitleBar", typeof(DialogTitleBar))]
+public partial class ArcTexelPopup : Window, IPopupWindow
+{
+    public static event Action<ArcTexelPopup> PopupLoaded;
+    public static event Action<ArcTexelPopup> PopupClosed;
+
+    public static readonly StyledProperty<bool> CanMinimizeProperty = AvaloniaProperty.Register<ArcTexelPopup, bool>(
+        nameof(CanMinimize), defaultValue: true);
+
+    public static readonly StyledProperty<bool> CloseIsHideProperty = AvaloniaProperty.Register<ArcTexelPopup, bool>(
+        nameof(CloseIsHide), defaultValue: false);
+
+    public static readonly StyledProperty<ICommand> CloseCommandProperty =
+        AvaloniaProperty.Register<ArcTexelPopup, ICommand>(
+            nameof(CloseCommand));
+
+    public static readonly StyledProperty<bool> ShowTitleBarProperty = AvaloniaProperty.Register<ArcTexelPopup, bool>(
+        nameof(ShowTitleBar), defaultValue: true);
+
+    public bool ShowTitleBar
+    {
+        get => GetValue(ShowTitleBarProperty);
+        set => SetValue(ShowTitleBarProperty, value);
+    }
+
+    public ICommand CloseCommand
+    {
+        get => GetValue(CloseCommandProperty);
+        set => SetValue(CloseCommandProperty, value);
+    }
+
+    public bool CloseIsHide
+    {
+        get => GetValue(CloseIsHideProperty);
+        set => SetValue(CloseIsHideProperty, value);
+    }
+
+    public bool CanMinimize
+    {
+        get => GetValue(CanMinimizeProperty);
+        set => SetValue(CanMinimizeProperty, value);
+    }
+
+    private Panel resizePanel;
+
+    protected override Type StyleKeyOverride => typeof(ArcTexelPopup);
+
+    public ArcTexelPopup()
+    {
+        CloseCommand = new RelayCommand(ClosePopup);
+#if DEBUG
+        this.AttachDevTools();
+#endif
+        ArcTexelSettings.Appearance.UseSystemDecorations.ValueChanged += (_, _) => UpdateDecorations();
+
+        UpdateDecorations();
+    }
+
+    private void UpdateDecorations()
+    {
+        var cliArgs = Environment.GetCommandLineArgs();
+        bool userPrefersSystemDecorations = ArcTexelSettings.Appearance.UseSystemDecorations.Value;
+        bool systemDecorations = false;
+        if (cliArgs != null || userPrefersSystemDecorations)
+        {
+            if (userPrefersSystemDecorations || cliArgs.Contains("--system-decorations"))
+            {
+                this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+                this.SystemDecorations = SystemDecorations.Full;
+                this.ExtendClientAreaToDecorationsHint = false;
+                ShowTitleBar = false;
+                systemDecorations = true;
+            }
+        }
+
+        if (!systemDecorations)
+        {
+            this.ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default;
+            this.ExtendClientAreaToDecorationsHint = true;
+            if (System.OperatingSystem.IsLinux())
+            {
+                SystemDecorations = SystemDecorations.None;
+            }
+            else if (System.OperatingSystem.IsMacOS())
+            {
+                ExtendClientAreaChromeHints = ExtendClientAreaChromeHints.Default |
+                                              ExtendClientAreaChromeHints.NoChrome |
+                                              ExtendClientAreaChromeHints.OSXThickTitleBar;
+            }
+            else
+            {
+                SystemDecorations = SystemDecorations.Full;
+            }
+
+            ShowTitleBar = true;
+        }
+    }
+
+    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+    {
+        base.OnApplyTemplate(e);
+        if (System.OperatingSystem.IsLinux())
+        {
+            var titleBar = e.NameScope.Find<DialogTitleBar>("PART_TitleBar");
+            titleBar.PointerPressed += OnTitleBarPressed;
+
+            resizePanel = e.NameScope.Find<Panel>("PART_ResizePanel");
+            resizePanel.AddHandler(PointerPressedEvent, OnResizePanelPressed,
+                RoutingStrategies.Tunnel | RoutingStrategies.Bubble);
+            resizePanel.PointerMoved += OnResizePanelMoved;
+        }
+    }
+
+    private void OnTitleBarPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+        {
+            if (e.ClickCount == 2)
+            {
+                WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
+            }
+            else
+            {
+                BeginMoveDrag(e);
+                e.Handled = true;
+            }
+        }
+    }
+
+    private void OnResizePanelPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (WindowState == WindowState.Normal && e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && CanResize)
+        {
+            var dir = WindowUtility.GetResizeDirection(e.GetPosition(resizePanel), resizePanel, new Thickness(8));
+            if (dir == null) return;
+
+            BeginResizeDrag(dir.Value, e);
+            e.Handled = true;
+        }
+    }
+
+    private void OnResizePanelMoved(object? sender, PointerEventArgs e)
+    {
+        if (!CanResize || WindowState != WindowState.Normal) return;
+        Cursor = new Cursor(WindowUtility.SetResizeCursor(e, resizePanel, new Thickness(8)));
+    }
+
+    public override void Show()
+    {
+        Show(MainWindow.Current);
+    }
+
+    public void ShowStandalone()
+    {
+        base.Show();
+    }
+
+    public AsyncCall<bool?> ShowDialog()
+    {
+        return AsyncCall<bool?>.FromTask(ShowDialog<bool?>(MainWindow.Current));
+    }
+
+    protected override void OnLoaded(RoutedEventArgs e)
+    {
+        base.OnLoaded(e);
+        PopupLoaded?.Invoke(this);
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        PopupClosed?.Invoke(this);
+    }
+
+    [RelayCommand]
+    public void SetResultAndCloseCommand()
+    {
+        if (CloseIsHide)
+            Hide();
+        else
+            Close(true);
+    }
+
+    public void ClosePopup()
+    {
+        if (CloseIsHide)
+            Hide();
+        else
+            Close(false);
+    }
+}

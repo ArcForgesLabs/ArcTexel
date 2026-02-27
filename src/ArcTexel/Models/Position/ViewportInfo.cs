@@ -1,0 +1,30 @@
+using ChunkyImageLib.DataHolders;
+using Drawie.Backend.Core.Numerics;
+using Drawie.Backend.Core.Surfaces;
+using Drawie.Numerics;
+using ArcTexel.ChangeableDocument.Rendering.ContextData;
+
+namespace ArcTexel.Models.Position;
+
+/// <summary>
+/// Used to keep track of viewports inside DocumentViewModel without directly referencing them
+/// </summary>
+internal readonly record struct ViewportInfo(
+    double Angle,
+    VecD Center,
+    VecD RealDimensions,
+    ViewportData ViewportData,
+    PointerInfo PointerInfo,
+    KeyboardInfo KeyboardInfo,
+    EditorData EditorData,
+    RectI? VisibleDocumentRegion,
+    string RenderOutput,
+    SamplingOptions Sampling,
+    VecD Dimensions,
+    ChunkResolution Resolution,
+    Guid Id,
+    bool Delayed,
+    bool IsScene,
+    Action InvalidateVisual)
+{
+}

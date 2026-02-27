@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:settings="clr-namespace:ArcTexel.ViewModels.Tools.ToolSettings.Settings"
+             xmlns:input="clr-namespace:ArcTexel.Views.Input"
+             xmlns:behaviours="clr-namespace:ArcTexel.Helpers.Behaviours"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="ArcTexel.Views.Tools.ToolSettings.Settings.ColorSettingView">
+    <Design.DataContext>
+        <settings:ColorSettingViewModel/>
+    </Design.DataContext>
+    
+    <input:ToolSettingColorPicker 
+        EnableGradientsTab="{Binding AllowGradient}"
+        SelectedBrush="{Binding BrushValue, Mode=TwoWay}">
+        <Interaction.Behaviors>
+            <behaviours:GlobalShortcutFocusBehavior/>
+        </Interaction.Behaviors>
+    </input:ToolSettingColorPicker>
+</UserControl>

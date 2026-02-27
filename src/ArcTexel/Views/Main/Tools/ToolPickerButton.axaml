@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:xaml="clr-namespace:ArcTexel.Models.Commands.XAML"
+             xmlns:ui="clr-namespace:ArcTexel.UI.Common.Localization;assembly=ArcTexel.UI.Common"
+             xmlns:converters="clr-namespace:ArcTexel.Helpers.Converters"
+             xmlns:tools="clr-namespace:ArcTexel.ViewModels.Tools"
+             xmlns:markupExtensions="clr-namespace:ArcTexel.Helpers.MarkupExtensions"
+             xmlns:ui1="clr-namespace:ArcTexel.Helpers.UI"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             d:DataContext="{tools:ToolViewModel}" Name="Uc"
+             x:Class="ArcTexel.Views.Main.Tools.ToolPickerButton">
+    <Design.DataContext>
+        <tools:ToolViewModel />
+    </Design.DataContext>
+    <Button Command="{xaml:Command ArcTexel.Tools.SelectTool, UseProvided=true}"
+            CommandParameter="{Binding}"
+            Focusable="False"
+            Width="44" Height="34"
+            ui:Translator.TooltipLocalizedString="{Binding Tooltip}"
+            Background="{DynamicResource ThemeBackgroundBrush1}">
+        <Button.Template>
+            <ControlTemplate>
+                <Border Height="34" Width="34"
+                        Background="{DynamicResource ThemeBackgroundBrush1}">
+                    <ContentPresenter Content="{TemplateBinding Content}" />
+                </Border>
+            </ControlTemplate>
+        </Button.Template>
+        <Button.Content>
+            <Grid>
+                <TextBlock Classes="arc-icon" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"
+                           IsVisible="{Binding IsArcPerfectIcon}"
+                           Text="{Binding Path=IconToUse}" />
+                <Image IsVisible="{Binding !IsArcPerfectIcon}"
+                       Margin="2"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Source="{Binding IconToUse, Converter={converters:ImagePathToBitmapConverter}}" />
+                <TextBlock Background="{DynamicResource ThemeBackgroundBrush1}"
+                           IsVisible="{Binding !CanBeUsedOnActiveLayer}"
+                           Classes="arc-icon" FontSize="12" Text="{DynamicResource icon-layers}"
+                           HorizontalAlignment="Right" VerticalAlignment="Bottom" />
+            </Grid>
+        </Button.Content>
+    </Button>
+</UserControl>

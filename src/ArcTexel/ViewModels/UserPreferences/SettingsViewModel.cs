@@ -1,0 +1,27 @@
+using ArcTexel.ViewModels.SubViewModels;
+using ArcTexel.ViewModels.UserPreferences.Settings;
+
+namespace ArcTexel.ViewModels.UserPreferences;
+
+internal class SettingsViewModel : SubViewModel<SettingsWindowViewModel>
+{
+    public GeneralSettings General { get; set; } = new();
+
+    public ToolsSettings Tools { get; set; } = new();
+
+    public FileSettings File { get; set; } = new();
+
+    public UpdateSettings Update { get; set; } = new();
+
+    public DiscordSettings Discord { get; set; } = new();
+
+    public SceneSettings Scene { get; set; } = new();
+
+    public PerformanceSettings Performance { get; set; } = new();
+    public AppearanceSettings Appearance { get; } = new();
+
+    public SettingsViewModel(SettingsWindowViewModel owner)
+        : base(owner)
+    {
+    }
+}

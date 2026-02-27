@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RuntimeIdentifier>wasi-wasm</RuntimeIdentifier>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <PublishTrimmed>true</PublishTrimmed>
+    <WasmBuildNative>true</WasmBuildNative>
+    <WasmSingleFileBundle>true</WasmSingleFileBundle>
+    <TrimMode>full</TrimMode>
+    <DebuggerSupport>false</DebuggerSupport>
+    <EventSourceSupport>false</EventSourceSupport>
+    <UseSystemResourceKeys>true</UseSystemResourceKeys>
+    <NativeDebugSymbols>false</NativeDebugSymbols>
+    <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
+    <PackageId>ArcTexel.Extensions.Sdk</PackageId>
+    <PackageVersion>0.0.1.1-dev</PackageVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArcTexel.Extensions.CommonApi\ArcTexel.Extensions.CommonApi.csproj"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Build.Utilities.Core" Version="17.14.28" />
+  </ItemGroup>
+
+  <Target Name="PackTaskDependencies" BeforeTargets="GenerateNuspec">
+    <ItemGroup>
+      <_PackageFiles Include="build\**" BuildAction="Content" PackagePath="build"/>
+      <_PackageFiles Include="native\**" BuildAction="Content" PackagePath="native"/>
+    </ItemGroup>
+  </Target>
+
+</Project>
+

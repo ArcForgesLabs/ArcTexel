@@ -1,0 +1,54 @@
+using ArcTexel.ChangeableDocument.Changeables.Graph.Nodes;
+using ArcTexel.ChangeableDocument.Enums;
+using ArcTexel.Extensions.Helpers;
+using ArcTexel.Models.Events;
+using ArcTexel.Models.Handlers;
+using ArcTexel.UI.Common.Fonts;
+using ArcTexel.UI.Common.Localization;
+using ArcTexel.ViewModels.Nodes;
+using ArcTexel.ViewModels.Nodes.Properties;
+
+namespace ArcTexel.ViewModels.Document.Nodes;
+
+[NodeViewModel("MATH_NODE", "NUMBERS", ArcPerfectIcons.PlusMinus)]
+internal class MathNodeViewModel : NodeViewModel<MathNode>
+{
+    private GenericEnumPropertyViewModel Mode { get; set; }
+    
+    private NodePropertyViewModel X { get; set; }
+    
+    private NodePropertyViewModel Y { get; set; }
+    
+    private NodePropertyViewModel Z { get; set; }
+    
+    public override void OnInitialized()
+    {
+        Mode = FindInputProperty("Mode") as GenericEnumPropertyViewModel;
+        X = FindInputProperty("X");
+        Y = FindInputProperty("Y");
+        Z = FindInputProperty("Z");
+        
+        Mode.ValueChanged += (_, _) => ModeChanged();
+        ModeChanged();
+    }
+
+    private void ModeChanged()
+    {
+        if (Mode.Value is not MathNodeMode mode)
+            return;
+
+        DisplayName = mode.GetDescription();
+        Y.IsVisible = mode.UsesYValue();
+        Z.IsVisible = mode.UsesZValue();
+
+        var (x, y, z) = mode.GetNaming();
+
+        x = new LocalizedString(x);
+        y = new LocalizedString(y);
+        z = new LocalizedString(z);
+
+        X.DisplayName = x;
+        Y.DisplayName = y;
+        Z.DisplayName = z;
+    }
+}

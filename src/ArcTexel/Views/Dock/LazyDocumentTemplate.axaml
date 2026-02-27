@@ -1,0 +1,28 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ui="clr-namespace:ArcTexel.UI.Common.Localization;assembly=ArcTexel.UI.Common"
+             xmlns:xaml="clr-namespace:ArcTexel.Models.Commands.XAML"
+             xmlns:viewModels1="clr-namespace:ArcTexel.ViewModels"
+             xmlns:converters="clr-namespace:ArcTexel.Helpers.Converters"
+             xmlns:palettes1="clr-namespace:ArcTexel.Views.Palettes"
+             xmlns:viewportControls="clr-namespace:ArcTexel.Views.Main.ViewportControls"
+             xmlns:subViewModels="clr-namespace:ArcTexel.ViewModels.SubViewModels"
+             xmlns:document="clr-namespace:ArcTexel.ViewModels.Document"
+             xmlns:palettes="clr-namespace:ArcTexel.Extensions.CommonApi.Palettes;assembly=ArcTexel.Extensions.CommonApi"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="subViewModels:LazyViewportWindowViewModel"
+             x:Class="ArcTexel.Views.Dock.LazyDocumentTemplate">
+    <Design.DataContext>
+        <subViewModels:LazyViewportWindowViewModel />
+    </Design.DataContext>
+
+    <StackPanel Spacing="5" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock ui:Translator.Key="LOAD_LAZY_FILE_MESSAGE" />
+        <TextBlock Text="{Binding LazyDocument.Path}" />
+        <Button ui:Translator.Key="OPEN"
+                Command="{xaml:Command ArcTexel.Document.LoadLazyDocument, UseProvided=True}"
+                CommandParameter="{Binding LazyDocument}" />
+    </StackPanel>
+</UserControl>
